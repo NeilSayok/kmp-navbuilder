@@ -14,6 +14,7 @@ data class ScreenModel(
     val hasNavigateTo: Boolean,
     val composableFunctionName: String,
     val composablePackage: String,
+    val hasFlowParam: Boolean = false,
 )
 
 /**

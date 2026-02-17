@@ -59,8 +59,9 @@ class DeepLinkGenerator(
             }
         }
 
-        // Default: first screen (home)
-        val defaultConfig = ClassName(outputPackage, "ScreenConfig", screens.first().configName)
+        // Default: first screen without params (data object), fallback to first screen
+        val defaultScreen = screens.firstOrNull { it.params.isEmpty() } ?: screens.first()
+        val defaultConfig = ClassName(outputPackage, "ScreenConfig", defaultScreen.configName)
         code.addStatement("else -> %T", defaultConfig)
         code.endControlFlow()
 

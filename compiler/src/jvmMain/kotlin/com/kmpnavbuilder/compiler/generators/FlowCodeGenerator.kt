@@ -137,6 +137,10 @@ class FlowCodeGenerator(
             val constructorArgs = mutableListOf<String>()
             constructorArgs.add("componentContext = context")
 
+            if (screen.hasNavigateTo) {
+                constructorArgs.add("navigateTo = flow::handleNavigation")
+            }
+
             if (screen.hasFlowParam) {
                 constructorArgs.add("flow = flow")
             }

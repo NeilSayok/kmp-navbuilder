@@ -43,6 +43,7 @@ abstract class NavRootComponent<C : NavConfig, T : Any>(
             stack = _stack,
             serializer = serializer,
             pathMapper = { pathMapper?.invoke(it.configuration) },
+            childSelector = { it.instance as? WebNavigationOwner },
         )
 
     @Suppress("UNCHECKED_CAST")

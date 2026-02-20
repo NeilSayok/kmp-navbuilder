@@ -39,7 +39,8 @@ class FlowCodeGenerator(
         generateChild(outputPackage, prefix, flow)
         generateFactory(outputPackage, prefix, flow)
         generateContent(outputPackage, prefix, flow)
-        logger.info("Generated ${prefix} flow files (Config, Child, Factory, Content) with ${flow.screens.size} sub-screens")
+        generatePathMapper(outputPackage, prefix, flow)
+        logger.info("Generated ${prefix} flow files (Config, Child, Factory, Content, PathMapper) with ${flow.screens.size} sub-screens")
     }
 
     private fun generateConfig(outputPackage: String, prefix: String, flow: FlowModel) {
@@ -165,6 +166,36 @@ class FlowCodeGenerator(
             .build()
 
         val fileSpec = FileSpec.builder(outputPackage, factoryName)
+            .addType(objectSpec)
+            .build()
+
+        fileSpec.writeTo(codeGenerator, Dependencies.ALL_FILES)
+    }
+
+    private fun generatePathMapper(outputPackage: String, prefix: String, flow: FlowModel) {
+        val mapperName = "${prefix}PathMapper"
+        val configClass = ClassName(outputPackage, "${prefix}Config")
+
+        val funSpec = FunSpec.builder("configToPath")
+            .addParameter("config", configClass)
+            .returns(String::class)
+
+        val code = CodeBlock.builder()
+            .beginControlFlow("return when (config)")
+
+        for (screen in flow.screens) {
+            val configEntry = ClassName(outputPackage, "${prefix}Config", screen.configName)
+            code.addStatement("is %T -> %S", configEntry, screen.path)
+        }
+
+        code.endControlFlow()
+        funSpec.addCode(code.build())
+
+        val objectSpec = TypeSpec.objectBuilder(mapperName)
+            .addFunction(funSpec.build())
+            .build()
+
+        val fileSpec = FileSpec.builder(outputPackage, mapperName)
             .addType(objectSpec)
             .build()
 

@@ -341,6 +341,7 @@ class NavBuilderProcessor(
                 hasNavigateTo = hasNavigateTo,
                 composableFunctionName = composableFunc.simpleName.asString(),
                 composablePackage = composableFunc.packageName.asString(),
+                isFlow = true,
             )
 
             allScreens.add(screen)

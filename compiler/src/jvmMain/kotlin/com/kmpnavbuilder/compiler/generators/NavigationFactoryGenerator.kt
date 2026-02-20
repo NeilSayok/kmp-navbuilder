@@ -39,6 +39,11 @@ class NavigationFactoryGenerator(
             .addParameter("config", screenConfigClass)
             .addParameter("context", componentContextClass)
             .addParameter("navigateTo", navigateToType)
+            .addParameter(
+                ParameterSpec.builder("deepLinkUrl", String::class.asTypeName().copy(nullable = true))
+                    .defaultValue("null")
+                    .build()
+            )
             .returns(childComponentClass)
 
         val whenBlock = CodeBlock.builder()
@@ -58,6 +63,10 @@ class NavigationFactoryGenerator(
 
             if (screen.hasNavigateTo) {
                 constructorArgs.add("navigateTo = navigateTo")
+            }
+
+            if (screen.isFlow && screen.hasDeepLinkUrl) {
+                constructorArgs.add("deepLinkUrl = deepLinkUrl")
             }
 
             for (param in screen.params) {

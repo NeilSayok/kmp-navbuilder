@@ -45,9 +45,11 @@ class FlowCodeGenerator(
 
     private fun generateConfig(outputPackage: String, prefix: String, flow: FlowModel) {
         val configName = "${prefix}Config"
+        val navConfigClass = ClassName("com.kmpnavbuilder.runtime", "NavConfig")
         val sealedInterface = TypeSpec.interfaceBuilder(configName)
             .addModifiers(KModifier.SEALED)
             .addAnnotation(AnnotationSpec.builder(serializableAnnotation).build())
+            .addSuperinterface(navConfigClass)
 
         for (screen in flow.screens) {
             if (screen.params.isEmpty()) {

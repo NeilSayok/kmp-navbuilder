@@ -298,11 +298,13 @@ class NavBuilderProcessor(
 
             val params = mutableListOf<ParamModel>()
             var hasNavigateTo = false
+            var hasDeepLinkUrl = false
 
             for (param in constructor.parameters) {
                 when {
                     isComponentContextParam(param) -> {}
                     isNavigateToParam(param) -> { hasNavigateTo = true }
+                    isDeepLinkUrlParam(param) -> { hasDeepLinkUrl = true }
                     hasNavParamAnnotation(param, navParamName) -> {
                         params.add(
                             ParamModel(
@@ -314,7 +316,7 @@ class NavBuilderProcessor(
                     else -> {
                         logger.error(
                             "Unrecognized constructor parameter '${param.name?.asString()}' in @NavFlow class ${flowDecl.simpleName.asString()}. " +
-                                "Parameters must be ComponentContext, (NavConfig, Boolean?) -> Unit, or annotated with @NavParam.",
+                                "Parameters must be ComponentContext, (NavConfig, Boolean?) -> Unit, deepLinkUrl: String?, or annotated with @NavParam.",
                             param,
                         )
                     }
@@ -341,6 +343,8 @@ class NavBuilderProcessor(
                 hasNavigateTo = hasNavigateTo,
                 composableFunctionName = composableFunc.simpleName.asString(),
                 composablePackage = composableFunc.packageName.asString(),
+                isFlow = true,
+                hasDeepLinkUrl = hasDeepLinkUrl,
             )
 
             allScreens.add(screen)
@@ -385,6 +389,7 @@ class NavBuilderProcessor(
             val flowModel = FlowModel(
                 flowComponentClassName = flowScreen.componentClassName,
                 configPrefix = configPrefix,
+                flowPath = flowScreen.path,
                 screens = subScreens,
             )
 
@@ -476,6 +481,12 @@ class NavBuilderProcessor(
         if (flowDecl == null) return false
         val paramTypeName = param.type.resolve().declaration.qualifiedName?.asString() ?: return false
         return paramTypeName == flowDecl.qualifiedName?.asString()
+    }
+
+    private fun isDeepLinkUrlParam(param: KSValueParameter): Boolean {
+        if (param.name?.asString() != "deepLinkUrl") return false
+        val typeName = param.type.resolve().declaration.qualifiedName?.asString() ?: return false
+        return typeName == "kotlin.String"
     }
 
     private fun hasNavParamAnnotation(param: KSValueParameter, annotationName: String): Boolean {

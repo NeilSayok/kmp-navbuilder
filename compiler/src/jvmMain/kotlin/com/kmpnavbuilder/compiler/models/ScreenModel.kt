@@ -15,6 +15,8 @@ data class ScreenModel(
     val composableFunctionName: String,
     val composablePackage: String,
     val hasFlowParam: Boolean = false,
+    val isFlow: Boolean = false,
+    val hasDeepLinkUrl: Boolean = false,
 )
 
 /**

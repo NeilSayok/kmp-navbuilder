@@ -39,14 +39,17 @@ class FlowCodeGenerator(
         generateChild(outputPackage, prefix, flow)
         generateFactory(outputPackage, prefix, flow)
         generateContent(outputPackage, prefix, flow)
-        logger.info("Generated ${prefix} flow files (Config, Child, Factory, Content) with ${flow.screens.size} sub-screens")
+        generatePathMapper(outputPackage, prefix, flow)
+        logger.info("Generated ${prefix} flow files (Config, Child, Factory, Content, PathMapper) with ${flow.screens.size} sub-screens")
     }
 
     private fun generateConfig(outputPackage: String, prefix: String, flow: FlowModel) {
         val configName = "${prefix}Config"
+        val navConfigClass = ClassName("com.kmpnavbuilder.runtime", "NavConfig")
         val sealedInterface = TypeSpec.interfaceBuilder(configName)
             .addModifiers(KModifier.SEALED)
             .addAnnotation(AnnotationSpec.builder(serializableAnnotation).build())
+            .addSuperinterface(navConfigClass)
 
         for (screen in flow.screens) {
             if (screen.params.isEmpty()) {
@@ -137,6 +140,10 @@ class FlowCodeGenerator(
             val constructorArgs = mutableListOf<String>()
             constructorArgs.add("componentContext = context")
 
+            if (screen.hasNavigateTo) {
+                constructorArgs.add("navigateTo = flow::handleNavigation")
+            }
+
             if (screen.hasFlowParam) {
                 constructorArgs.add("flow = flow")
             }
@@ -161,6 +168,76 @@ class FlowCodeGenerator(
             .build()
 
         val fileSpec = FileSpec.builder(outputPackage, factoryName)
+            .addType(objectSpec)
+            .build()
+
+        fileSpec.writeTo(codeGenerator, Dependencies.ALL_FILES)
+    }
+
+    private fun generatePathMapper(outputPackage: String, prefix: String, flow: FlowModel) {
+        val mapperName = "${prefix}PathMapper"
+        val configClass = ClassName(outputPackage, "${prefix}Config")
+
+        val funSpec = FunSpec.builder("configToPath")
+            .addParameter("config", configClass)
+            .returns(String::class)
+
+        val code = CodeBlock.builder()
+            .beginControlFlow("return when (config)")
+
+        for (screen in flow.screens) {
+            val configEntry = ClassName(outputPackage, "${prefix}Config", screen.configName)
+            // Return only the relative sub-path by stripping the flow's base path.
+            // Decompose concatenates parent + child path segments, so the child must
+            // not repeat the parent's prefix (e.g. "/email" not "/welcome/email").
+            val relativePath = screen.path.removePrefix(flow.flowPath)
+            code.addStatement("is %T -> %S", configEntry, relativePath)
+        }
+
+        code.endControlFlow()
+        funSpec.addCode(code.build())
+
+        // Generate parseSubPath: reverse URL → initial config for deep linking
+        val parseSubPathFun = FunSpec.builder("parseSubPath")
+            .addParameter("url", String::class)
+            .returns(configClass)
+
+        val parseCode = CodeBlock.builder()
+            .addStatement(
+                "val pathSegments = url.substringAfter(\"://\").substringAfter(\"/\")"
+            )
+            .addStatement(
+                "val fullPath = \"/\" + pathSegments.trimStart('/')"
+            )
+            .addStatement(
+                "val subPath = fullPath.removePrefix(%S)",
+                flow.flowPath,
+            )
+            .beginControlFlow("return when")
+
+        // Use alphabetically-first config name as the "else" default for stable ordering.
+        val defaultScreen = flow.screens.minByOrNull { it.configName } ?: flow.screens.first()
+        val defaultConfig = ClassName(outputPackage, "${prefix}Config", defaultScreen.configName)
+        for (screen in flow.screens) {
+            val configEntry = ClassName(outputPackage, "${prefix}Config", screen.configName)
+            val relativePath = screen.path.removePrefix(flow.flowPath)
+            parseCode.addStatement(
+                "subPath == %S || subPath.startsWith(%S) -> %T",
+                relativePath,
+                "$relativePath/",
+                configEntry,
+            )
+        }
+        parseCode.addStatement("else -> %T", defaultConfig)
+        parseCode.endControlFlow()
+        parseSubPathFun.addCode(parseCode.build())
+
+        val objectSpec = TypeSpec.objectBuilder(mapperName)
+            .addFunction(funSpec.build())
+            .addFunction(parseSubPathFun.build())
+            .build()
+
+        val fileSpec = FileSpec.builder(outputPackage, mapperName)
             .addType(objectSpec)
             .build()
 

@@ -15,7 +15,7 @@ import com.arkivanov.decompose.value.Value
 import kotlinx.serialization.KSerializer
 
 @OptIn(ExperimentalDecomposeApi::class)
-abstract class NavRootComponent<C : NavConfig, T : Any>(
+abstract class NavRootComponent<C : NavConfig, T : NavChildComponent>(
     componentContext: ComponentContext,
     serializer: KSerializer<C>,
     initialStack: () -> List<C>,
@@ -43,6 +43,7 @@ abstract class NavRootComponent<C : NavConfig, T : Any>(
             stack = _stack,
             serializer = serializer,
             pathMapper = { pathMapper?.invoke(it.configuration) },
+            childSelector = { it.instance.asWebNavigationOwner() },
         )
 
     @Suppress("UNCHECKED_CAST")

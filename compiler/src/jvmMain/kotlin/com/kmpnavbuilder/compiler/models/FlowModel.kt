@@ -12,5 +12,6 @@ import com.squareup.kotlinpoet.ClassName
 data class FlowModel(
     val flowComponentClassName: ClassName,
     val configPrefix: String,
+    val flowPath: String,
     val screens: List<ScreenModel>,
 )

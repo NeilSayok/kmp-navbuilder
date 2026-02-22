@@ -27,14 +27,28 @@ class DeepLinkGenerator(
             .addStatement("val path = \"/\" + pathSegments.trimStart('/')")
             .beginControlFlow("return when")
 
-        // Sort screens: parameterized paths last (more specific static paths first)
-        val sortedScreens = screens.sortedBy { if (it.params.isEmpty()) 0 else 1 }
+        // Sort: static exact first, flow prefix second, parameterized last
+        val sortedScreens = screens.sortedWith(compareBy {
+            when {
+                it.params.isNotEmpty() -> 2
+                it.isFlow -> 1
+                else -> 0
+            }
+        })
 
         for (screen in sortedScreens) {
             val configEntry = ClassName(outputPackage, "ScreenConfig", screen.configName)
 
-            if (screen.params.isEmpty()) {
-                // Simple path matching
+            if (screen.isFlow) {
+                // Flow screens use prefix matching so sub-paths like /welcome/email also match
+                code.addStatement(
+                    "path == %S || path.startsWith(%S) -> %T",
+                    screen.path,
+                    "${screen.path}/",
+                    configEntry,
+                )
+            } else if (screen.params.isEmpty()) {
+                // Simple exact path matching
                 if (screen.path != "/") {
                     code.addStatement("path == %S -> %T", screen.path, configEntry)
                 }

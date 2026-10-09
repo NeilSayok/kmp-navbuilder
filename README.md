@@ -36,8 +36,8 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("com.kmpnavbuilder:annotations:1.1.0")
-            implementation("com.kmpnavbuilder:runtime:1.1.0")
+            implementation("com.kmpnavbuilder:annotations:1.0.2")
+            implementation("com.kmpnavbuilder:runtime:1.0.2")
 
             // Decompose (required by runtime)
             implementation("com.arkivanov.decompose:decompose:3.5.0")
@@ -51,9 +51,9 @@ kotlin {
 
 // Register the KSP compiler on the JVM target (which runs the processor)
 dependencies {
-    add("kspJvm", "com.kmpnavbuilder:compiler:1.1.0")
+    add("kspJvm", "com.kmpnavbuilder:compiler:1.0.2")
     // For Android targets use:
-    // add("kspAndroid", "com.kmpnavbuilder:compiler:1.1.0")
+    // add("kspAndroid", "com.kmpnavbuilder:compiler:1.0.2")
 }
 
 // Optional: set the output package for generated files

@@ -5,4 +5,4 @@
 /build/
 /compiler/build/
 /runtime/build/
-/graphify-out/cache
+/graphify-out/

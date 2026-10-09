@@ -1,4 +1,4 @@
-## v1.1.0
+## v1.0.2
 
 ### Changed
 - Updated Decompose to **3.5.0** (from 3.4.0). The library code needed no changes, because the one breaking change in Decompose 3.5.0 (`Child#key` is now `String`) isn't used here.
@@ -16,4 +16,7 @@
 - If you target JS/Wasm, regenerate your yarn lock (`./gradlew kotlinUpgradeYarnLock`).
 
 ### Artifacts
-`com.kmpnavbuilder:annotations`, `:runtime`, `:compiler` at `1.1.0`
+`com.kmpnavbuilder:annotations`, `:runtime`, `:compiler` at `1.0.2`
+
+### Note
+`1.0.1` was tagged but never published because its build still declared version 1.0.0. Use `1.0.2`.

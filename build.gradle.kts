@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "com.kmpnavbuilder"
-    version = "1.0.0"
+    version = "1.1.0"
 }
 
 subprojects {

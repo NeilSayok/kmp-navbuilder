@@ -29,8 +29,8 @@ In your shared KMP module's `build.gradle.kts`:
 
 ```kotlin
 plugins {
-    id("com.google.devtools.ksp") version "2.3.4"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.0"
+    id("com.google.devtools.ksp") version "2.3.12"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.4.21"
 }
 
 kotlin {
@@ -40,11 +40,11 @@ kotlin {
             implementation("com.kmpnavbuilder:runtime:1.0.0")
 
             // Decompose (required by runtime)
-            implementation("com.arkivanov.decompose:decompose:3.4.0")
-            implementation("com.arkivanov.decompose:extensions-compose:3.4.0")
+            implementation("com.arkivanov.decompose:decompose:3.5.0")
+            implementation("com.arkivanov.decompose:extensions-compose:3.5.0")
 
             // Serialization (required by runtime)
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
         }
     }
 }
@@ -449,10 +449,10 @@ Warnings are emitted for:
 
 | Library | Version | Role |
 |---|---|---|
-| [Decompose](https://github.com/arkivanov/Decompose) | 3.4.0 | Component lifecycle & navigation stack |
-| [KotlinX Serialization](https://github.com/Kotlin/kotlinx.serialization) | 1.8.1 | Serializable navigation configs |
-| [KSP](https://github.com/google/ksp) | 2.3.4 | Symbol processing at compile time |
-| [KotlinPoet](https://github.com/square/kotlinpoet) | 2.2.0 | Kotlin source file generation |
+| [Decompose](https://github.com/arkivanov/Decompose) | 3.5.0 | Component lifecycle & navigation stack |
+| [KotlinX Serialization](https://github.com/Kotlin/kotlinx.serialization) | 1.11.0 | Serializable navigation configs |
+| [KSP](https://github.com/google/ksp) | 2.3.12 | Symbol processing at compile time |
+| [KotlinPoet](https://github.com/square/kotlinpoet) | 2.4.0 | Kotlin source file generation |
 
 ---
 
